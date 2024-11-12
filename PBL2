@@ -1,0 +1,12 @@
+Enunciado:
+
+Fazer programa em MIPS, utilizando o simulador QTSPIM, que implementa os seguintes
+procedimentos:
+• Main: Chama os demais procedimentos;
+• InserePrecos: Lê um array de 10 preços de produtos via entrada de teclado do usuário;
+• AplicaDesconto: Recebe endereço do array e aplica a seguinte regra de desconto:
+produtos com valores maiores que 100 reais recebem 15 reais de desconto;
+• OrdenaProdutos: Ordena os valores em ordem crescente;
+• ImprimePrecos: Imprime preços (após ordenação).
+Considere números inteiros.
+Colocar comentário a cada linha de execução.
