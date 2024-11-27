@@ -1,8 +1,10 @@
 .data
-# Declarando a área de dados para armazenar os preços
 precos: .space 40        # Array para armazenar 10 preços (4 bytes por preço)
 msg_inserir: .asciiz "Insira o preco do produto: "
 msg_final: .asciiz "Precos ordenados: "
+msg_desconto: .asciiz "Aplicado desconto de R$15 ao preco: "
+msg_sem_desconto: .asciiz "Preco sem desconto: "
+newline: .byte 0xA       # Caracter de nova linha (ASCII para '\n')
 
 .text
 .globl main
@@ -34,6 +36,12 @@ loop_inserir:
     addi $t0, $t0, 1       # Incrementa o índice
     li $t4, 10             # Número total de preços
     bne $t0, $t4, loop_inserir  # Continua até inserir todos os preços
+
+    # Pular linha após inserir todos os preços
+    li $v0, 4              # Print string syscall
+    la $a0, newline        # Carrega o caractere de nova linha
+    syscall
+
     jr $ra                 # Retorna para a função main
 
 # Função AplicaDesconto: Aplica desconto de R$15 a preços > 100
@@ -50,10 +58,30 @@ loop_desconto:
 aplica:
     sub $t5, $t5, $t3      # Aplica o desconto
     sw $t5, 0($t0)         # Atualiza o valor no array
+
+    # Imprime a mensagem de desconto aplicado
+    li $v0, 4              # Print string syscall
+    la $a0, msg_desconto   # Carrega a mensagem de desconto
+    syscall
+    move $a0, $t5          # Prepara o valor com o desconto para ser impresso
+    li $v0, 1              # Print integer syscall
+    syscall
+
+    # Imprime uma nova linha após o valor com desconto
+    li $v0, 4              # Print string syscall
+    la $a0, newline        # Carrega o caractere de nova linha
+    syscall
+
 proximo:
     addi $t0, $t0, 4       # Move para o próximo elemento
     addi $t4, $t4, 1       # Incrementa o índice
     bne $t4, $t1, loop_desconto  # Continua até percorrer todo o array
+
+    # Pular linha após a aplicação do desconto em todos os preços
+    li $v0, 4              # Print string syscall
+    la $a0, newline        # Carrega o caractere de nova linha
+    syscall
+
     jr $ra                 # Retorna para a função main
 
 # Função OrdenaProdutos: Ordena os preços em ordem crescente
@@ -84,6 +112,7 @@ proximo_j:
     bne $t3, $t1, loop_ordena_j  # Continua até o final da lista
     addi $t2, $t2, 1       # Incrementa i
     bne $t2, $t1, loop_ordena_i  # Continua até o final da lista
+
     jr $ra                 # Retorna para a função main
 
 # Função ImprimePrecos: Imprime os preços ordenados
@@ -91,15 +120,27 @@ ImprimePrecos:
     li $t0, 0              # Índice inicial
     la $t1, precos         # Carrega o endereço base do array
     li $v0, 4              # Print string syscall
-    la $a0, msg_final      # Carrega a mensagem de final
-    syscall
+    la $a0, msg_final      # Carrega a mensagem de "Preços ordenados"
+    syscall              # Imprime a mensagem
+
+    # Pula uma linha após a mensagem "Preços ordenados"
+    li $v0, 4              # Print string syscall
+    la $a0, newline        # Carrega o caractere de nova linha
+    syscall              # Imprime a nova linha
+
 loop_imprimir:
-    li $v0, 1              # Print integer syscall
+    li $v0, 1              # Syscall para imprimir inteiro
     lw $a0, 0($t1)         # Carrega o valor de preço
-    syscall
+    syscall              # Imprime o preço
+
+    # Imprime uma nova linha após cada preço
+    li $v0, 4              # Print string syscall
+    la $a0, newline        # Carrega o caractere de nova linha
+    syscall              # Imprime a nova linha
 
     addi $t1, $t1, 4       # Move para o próximo valor no array
     addi $t0, $t0, 1       # Incrementa o índice
     li $t2, 10             # Número total de preços
     bne $t0, $t2, loop_imprimir # Continua até imprimir todos os preços
+
     jr $ra                 # Retorna para a função main
